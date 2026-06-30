@@ -307,9 +307,11 @@ app.use('/api/auth/*', async (c, next) => {
 });
 app.route(API_BASENAME, api);
 
-const isBuild = process.env.npm_lifecycle_event === 'build';
+// Check if we're in build mode using multiple reliable methods
+const isBuild = 
+  process.env.npm_lifecycle_event === 'build' || 
+  process.env.NODE_ENV === 'production' ||
+  process.env.__REACT_ROUTER_BUILD === 'true' ||
+  !!process.env.VERCEL;
 
-export default isBuild ? app : createHonoServer({
-  app,
-  defaultLogger: false,
-});
+export default app;
