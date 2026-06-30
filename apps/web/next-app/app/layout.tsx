@@ -42,7 +42,7 @@ export default function RootLayout({
     }
     
     // Listen for changes to system theme
-    const handleChange = (e) => {
+    const handleChange = (e: MediaQueryListEvent) => {
       if (e.matches) {
         document.documentElement.classList.add('dark');
       } else {

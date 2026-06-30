@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { motion } from 'motion/react';
 import {
   Search,
@@ -25,19 +25,33 @@ import { useMutation } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
 import Navigation from '../components/Navigation';
 
-export default function HomePage() {
-  const [searchParams] = useSearchParams();
-  const [trackingCode, setTrackingCode] = useState(searchParams.get('track') || '');
+function HomePageContent() {
+  const searchParams = useSearchParams();
+  const [trackingCode, setTrackingCode] = useState(searchParams?.get('track') || '');
   const [trackingResult, setTrackingResult] = useState<any>(null);
   const [showServiceModal, setShowServiceModal] = useState<any>(null);
-  const [contactForm, setContactForm] = useState({
+  const [contactForm, setContactForm] = useState<{
+    name: string;
+    email: string;
+    subject: string;
+    message: string;
+    callbackRequested: boolean;
+  }>({
     name: '',
     email: '',
     subject: '',
     message: '',
     callbackRequested: false
   });
-  const [quoteForm, setQuoteForm] = useState({
+  const [quoteForm, setQuoteForm] = useState<{
+    name: string;
+    email: string;
+    phone: string;
+    serviceType: string;
+    origin: string;
+    destination: string;
+    description: string;
+  }>({
     name: '',
     email: '',
     phone: '',
@@ -49,7 +63,7 @@ export default function HomePage() {
 
   // Tracking mutation
   const trackingMutation = useMutation({
-    mutationFn: async (code) => {
+    mutationFn: async (code: string) => {
       const response = await fetch(`/api/tracking?code=${encodeURIComponent(code)}`);
       if (!response.ok) {
         throw new Error('Tracking code not found');
@@ -59,14 +73,20 @@ export default function HomePage() {
     onSuccess: (data) => {
       setTrackingResult(data);
     },
-    onError: (error) => {
+    onError: (error: Error) => {
       setTrackingResult({ error: error.message });
     }
   });
 
   // Contact form mutation
   const contactMutation = useMutation({
-    mutationFn: async (formData) => {
+    mutationFn: async (formData: {
+      name: string;
+      email: string;
+      subject: string;
+      message: string;
+      callbackRequested: boolean;
+    }) => {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -94,7 +114,15 @@ export default function HomePage() {
 
   // Quote form mutation
   const quoteMutation = useMutation({
-    mutationFn: async (formData) => {
+    mutationFn: async (formData: {
+      name: string;
+      email: string;
+      phone: string;
+      serviceType: string;
+      origin: string;
+      destination: string;
+      description: string;
+    }) => {
       const response = await fetch('/api/quote', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -123,28 +151,28 @@ export default function HomePage() {
   });
 
   useEffect(() => {
-    const trackCode = searchParams.get('track');
+    const trackCode = searchParams?.get('track');
     if (trackCode) {
       trackingMutation.mutate(trackCode);
       setTimeout(() => {
         document.getElementById('tracking')?.scrollIntoView({ behavior: 'smooth' });
       }, 500);
     }
-  }, [searchParams]);
+  }, [searchParams, trackingMutation]);
 
-  const handleTrackingSubmit = (e) => {
+  const handleTrackingSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (trackingCode.trim()) {
       trackingMutation.mutate(trackingCode.trim());
     }
   };
 
-  const handleContactSubmit = (e) => {
+  const handleContactSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     contactMutation.mutate(contactForm);
   };
 
-  const handleQuoteSubmit = (e) => {
+  const handleQuoteSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     quoteMutation.mutate(quoteForm);
   };
@@ -239,7 +267,7 @@ export default function HomePage() {
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
             className="text-4xl md:text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight"
           >
             SwiftshipExpress
@@ -248,7 +276,7 @@ export default function HomePage() {
           <motion.p
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
             className="text-xl md:text-2xl lg:text-3xl text-white/90 mb-12 leading-relaxed"
           >
             Connecting the World, One Shipment at a Time
@@ -257,7 +285,7 @@ export default function HomePage() {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
             className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16"
           >
             <motion.button
@@ -283,7 +311,7 @@ export default function HomePage() {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
             className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8"
           >
             {trustBadges.map((badge, index) => {
@@ -444,7 +472,7 @@ export default function HomePage() {
                     
                     <div className="space-y-8 relative">
                       <h4 className="font-semibold text-gray-900 dark:text-white mb-6 -ml-6 md:-ml-8">Shipment Timeline</h4>
-                      {trackingResult.timeline?.map((step, index) => {
+                      {trackingResult.timeline?.map((step: any, index: number) => {
                         const isLastCompleted = step.completed && (!trackingResult.timeline[index + 1] || !trackingResult.timeline[index + 1].completed);
                         
                         return (
@@ -887,7 +915,7 @@ export default function HomePage() {
             <div className="mb-6">
               <h4 className="font-semibold text-gray-900 dark:text-white mb-3">Features:</h4>
               <ul className="space-y-2">
-                {showServiceModal.features?.map((feature, index) => (
+                {showServiceModal.features?.map((feature: any, index: number) => (
                   <li key={index} className="flex items-center space-x-2">
                     <CheckCircle size={16} className="text-green-500" />
                     <span className="text-gray-600 dark:text-gray-400">{feature}</span>
@@ -1016,5 +1044,13 @@ export default function HomePage() {
         </motion.div>
       )}
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <HomePageContent />
+    </Suspense>
   );
 }
