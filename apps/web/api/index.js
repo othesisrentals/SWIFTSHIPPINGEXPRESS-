@@ -1,5 +1,22 @@
 import { getRequestListener } from "@hono/node-server";
-import honoApp from "../build/server/index.js";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
 
-// Vercel expects a standard Node.js HTTP handler
-export default getRequestListener(honoApp.fetch);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const honoAppPath = path.resolve(__dirname, "../build/server/index.js");
+
+let honoHandler;
+
+async function loadHandler() {
+  if (!honoHandler) {
+    const honoApp = (await import(honoAppPath)).default;
+    honoHandler = getRequestListener(honoApp.fetch);
+  }
+  return honoHandler;
+}
+
+export default async function (req, res) {
+  const handler = await loadHandler();
+  return handler(req, res);
+}
+

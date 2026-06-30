@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build",
+  "outputDirectory": "apps/web/build/client",
+  "framework": null,
+  "functions": {
+    "apps/web/api/index.js": {
+      "runtime": "@vercel/node@3",
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  },
+  "routes": [
+    {
+      "src": "/assets/(.*)",
+      "dest": "/apps/web/build/client/assets/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/apps/web/api/index.js"
+    }
+  ]
+}
