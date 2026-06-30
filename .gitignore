@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build output
+build/
+dist/
+.react-router/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Vercel
+.vercel
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Lock files (optional – keep if you want reproducible installs)
+# package-lock.json
+# bun.lock
+
+# IDE
+.vscode/
+.idea/
+
+# Misc
+*.log

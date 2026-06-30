@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "outputDirectory": "build/client",
+  "env": {
+    "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY": "${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}",
+    "STRIPE_SECRET_KEY": "${STRIPE_SECRET_KEY}",
+    "NEXT_PUBLIC_CREATE_ENV": "${NEXT_PUBLIC_CREATE_ENV}",
+    "NEXT_PUBLIC_PROJECT_GROUP_ID": "${NEXT_PUBLIC_PROJECT_GROUP_ID}",
+    "CREATE_TEMP_API_KEY": "${CREATE_TEMP_API_KEY}"
+  },
+  "buildCommand": "npm run build",
+  "framework": null,
+  "rewrites": [
+    {
+      "source": "/assets/(.*)",
+      "destination": "/build/client/assets/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/api/index"
+    }
+  ]
+}
