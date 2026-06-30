@@ -307,11 +307,15 @@ app.use('/api/auth/*', async (c, next) => {
 });
 app.route(API_BASENAME, api);
 
-// Check if we're in build mode using multiple reliable methods
+// For build/production (including Vercel), export just the Hono app
+// For local dev, use createHonoServer to start a listening server
 const isBuild = 
   process.env.npm_lifecycle_event === 'build' || 
   process.env.NODE_ENV === 'production' ||
-  process.env.__REACT_ROUTER_BUILD === 'true' ||
+  !!process.env.__REACT_ROUTER_BUILD ||
   !!process.env.VERCEL;
 
-export default app;
+export default isBuild ? app : createHonoServer({
+  app,
+  defaultLogger: false,
+});
