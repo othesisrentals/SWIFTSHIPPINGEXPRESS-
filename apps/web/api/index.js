@@ -19,4 +19,3 @@ export default async function (req, res) {
   const handler = await loadHandler();
   return handler(req, res);
 }
-
